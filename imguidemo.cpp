@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-#include "../shared/examplefw.h"
+#include "examplefw.h"
 #include "qrhiimgui.h"
 
 static float vertexData[] = {
