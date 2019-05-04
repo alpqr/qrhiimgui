@@ -311,15 +311,11 @@ void Window::releaseResources()
 {
     customRelease();
 
-    if (m_rp) {
-        m_rp->releaseAndDestroy();
-        m_rp = nullptr;
-    }
+    delete m_rp;
+    m_rp = nullptr;
 
-    if (m_ds) {
-        m_ds->releaseAndDestroy();
-        m_ds = nullptr;
-    }
+    delete m_ds;
+    m_ds = nullptr;
 
     delete m_sc;
     m_sc = nullptr;

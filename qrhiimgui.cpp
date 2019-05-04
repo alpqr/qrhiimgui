@@ -295,15 +295,12 @@ void QRhiImgui::initialize(QRhi *rhi)
 void QRhiImgui::releaseResources()
 {
     for (QRhiImguiPrivate::Texture &t : d->textures) {
-        if (t.tex)
-            t.tex->releaseAndDestroy();
-        if (t.srb)
-            t.srb->releaseAndDestroy();
+        delete t.tex;
+        delete t.srb;
     }
     d->textures.clear();
 
-    for (QRhiResource *r : d->releasePool)
-        r->releaseAndDestroy();
+    qDeleteAll(d->releasePool);
     d->releasePool.clear();
 
     d->vbuf = d->ibuf = d->ubuf = nullptr;

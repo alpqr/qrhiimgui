@@ -128,8 +128,7 @@ void Window::customRelease()
 {
     d.imgui.releaseResources();
 
-    for (QRhiResource *r : d.releasePool)
-        r->releaseAndDestroy();
+    qDeleteAll(d.releasePool);
     d.releasePool.clear();
 }
 
