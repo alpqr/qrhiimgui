@@ -93,9 +93,9 @@ void Window::customInit()
     d.ps = m_r->newGraphicsPipeline();
     d.releasePool << d.ps;
 
-    QRhiShader vs = getShader(QLatin1String(":/color.vert.qsb"));
+    QShader vs = getShader(QLatin1String(":/color.vert.qsb"));
     Q_ASSERT(vs.isValid());
-    QRhiShader fs = getShader(QLatin1String(":/color.frag.qsb"));
+    QShader fs = getShader(QLatin1String(":/color.frag.qsb"));
     Q_ASSERT(fs.isValid());
     d.ps->setShaderStages({
         { QRhiGraphicsShaderStage::Vertex, vs },
@@ -152,7 +152,7 @@ void Window::customRender()
 
     d.imgui.prepareFrame(rt, m_rp, u);
 
-    cb->beginPass(rt, { 0.4f, 0.7f, 0.0f, 1.0f }, { 1.0f, 0 }, u);
+    cb->beginPass(rt, QColor::fromRgbF(0.4f, 0.7f, 0.0f, 1.0f), { 1.0f, 0 }, u);
 
     cb->setGraphicsPipeline(d.ps);
     cb->setViewport(QRhiViewport(0, 0, outputSizeInPixels.width(), outputSizeInPixels.height()));

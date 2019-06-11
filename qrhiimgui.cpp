@@ -62,13 +62,13 @@ void QRhiImgui::demoWindow()
     ImGui::ShowDemoWindow(&d->showDemoWindow);
 }
 
-static QRhiShader getShader(const QString &name)
+static QShader getShader(const QString &name)
 {
     QFile f(name);
     if (f.open(QIODevice::ReadOnly))
-        return QRhiShader::fromSerialized(f.readAll());
+        return QShader::fromSerialized(f.readAll());
 
-    return QRhiShader();
+    return QShader();
 }
 
 bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
@@ -168,9 +168,9 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         d->ps->setDepthWrite(false);
         d->ps->setFlags(QRhiGraphicsPipeline::UsesScissor);
 
-        QRhiShader vs = getShader(QLatin1String(":/imgui.vert.qsb"));
+        QShader vs = getShader(QLatin1String(":/imgui.vert.qsb"));
         Q_ASSERT(vs.isValid());
-        QRhiShader fs = getShader(QLatin1String(":/imgui.frag.qsb"));
+        QShader fs = getShader(QLatin1String(":/imgui.frag.qsb"));
         Q_ASSERT(fs.isValid());
         d->ps->setShaderStages({
             { QRhiGraphicsShaderStage::Vertex, vs },

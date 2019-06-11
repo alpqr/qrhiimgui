@@ -59,8 +59,8 @@
 #include <QElapsedTimer>
 #include <QTimer>
 
-#include <QRhiShader>
 #include <QFile>
+#include <QtGui/private/qshader_p.h>
 #include <QtGui/private/qrhiprofiler_p.h>
 #include <QtGui/private/qrhinull_p.h>
 
@@ -82,13 +82,13 @@
 #include <QtGui/private/qrhimetal_p.h>
 #endif
 
-QRhiShader getShader(const QString &name)
+QShader getShader(const QString &name)
 {
     QFile f(name);
     if (f.open(QIODevice::ReadOnly))
-        return QRhiShader::fromSerialized(f.readAll());
+        return QShader::fromSerialized(f.readAll());
 
-    return QRhiShader();
+    return QShader();
 }
 
 enum GraphicsApi
