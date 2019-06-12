@@ -173,8 +173,8 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         QShader fs = getShader(QLatin1String(":/imgui.frag.qsb"));
         Q_ASSERT(fs.isValid());
         d->ps->setShaderStages({
-            { QRhiGraphicsShaderStage::Vertex, vs },
-            { QRhiGraphicsShaderStage::Fragment, fs }
+            { QRhiShaderStage::Vertex, vs },
+            { QRhiShaderStage::Fragment, fs }
         });
 
         QRhiVertexInputLayout inputLayout;
