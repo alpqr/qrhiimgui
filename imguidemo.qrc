@@ -1,8 +1,0 @@
-<!DOCTYPE RCC><RCC version="1.0">
-<qresource>
-  <file>color.vert.qsb</file>
-  <file>color.frag.qsb</file>
-  <file>imgui.vert.qsb</file>
-  <file>imgui.frag.qsb</file>
-</qresource>
-</RCC>
