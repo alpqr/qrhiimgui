@@ -57,6 +57,8 @@ public:
 
     void setInputEventSource(QObject *src);
 
+    void setDepthTest(bool enabled);
+
     void initialize(QRhi *rhi);
     void releaseResources();
 

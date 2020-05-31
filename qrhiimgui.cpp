@@ -163,7 +163,7 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         blend.colorWrite = QRhiGraphicsPipeline::R | QRhiGraphicsPipeline::G | QRhiGraphicsPipeline::B;
         d->ps->setTargetBlends({ blend });
         d->ps->setCullMode(QRhiGraphicsPipeline::None);
-        d->ps->setDepthTest(true);
+        d->ps->setDepthTest(d->depthTest);
         d->ps->setDepthOp(QRhiGraphicsPipeline::LessOrEqual);
         d->ps->setDepthWrite(false);
         d->ps->setFlags(QRhiGraphicsPipeline::UsesScissor);
@@ -329,6 +329,11 @@ void QRhiImgui::setInputEventSource(QObject *src)
     }
 
     d->inputEventSource->installEventFilter(d->inputEventFilter);
+}
+
+void QRhiImgui::setDepthTest(bool enabled)
+{
+    d->depthTest = enabled;
 }
 
 QRhiImguiPrivate::QRhiImguiPrivate()

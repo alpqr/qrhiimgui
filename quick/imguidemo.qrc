@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>main.qml</file>
+  <file alias="imgui.vert.qsb">../imgui.vert.qsb</file>
+  <file alias="imgui.frag.qsb">../imgui.frag.qsb</file>
+</qresource>
+</RCC>

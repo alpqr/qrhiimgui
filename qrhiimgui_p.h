@@ -103,6 +103,8 @@ public:
     QRhiImGuiInputEventFilter *inputEventFilter = nullptr;
     QObject *inputEventSource = nullptr;
     bool inputInitialized = false;
+
+    bool depthTest = true;
 };
 
 QT_END_NAMESPACE
