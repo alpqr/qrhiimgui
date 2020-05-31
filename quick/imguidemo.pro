@@ -9,14 +9,15 @@ SOURCES = \
     ../imgui/imgui_draw.cpp \
     ../imgui/imgui_widgets.cpp \
     ../imgui/imgui_demo.cpp \
-    ../imnodes/imnodes.cpp
+    ../imnodes/imnodes.cpp \
+    ../ImGuiColorTextEdit/TextEditor.cpp
 
 HEADERS = \
     globalstate.h \
     ../qrhiimgui.h \
     ../qrhiimgui_p.h
 
-INCLUDEPATH += .. ../imgui ../imnodes
+INCLUDEPATH += .. ../imgui ../imnodes ../ImGuiColorTextEdit
 
 RESOURCES = \
     imguidemo.qrc
