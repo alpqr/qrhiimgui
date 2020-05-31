@@ -55,8 +55,8 @@ public:
     FrameFunc frameFunc() const;
     void demoWindow();
 
-    void setInputEventSource(QObject *src, bool eatEvents = false);
-
+    void setInputEventSource(QObject *src);
+    void setEatInputEvents(bool enabled);
     void setDepthTest(bool enabled);
 
     void initialize(QRhi *rhi);

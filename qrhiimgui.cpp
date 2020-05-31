@@ -316,7 +316,7 @@ QRhiImgui::FrameFunc QRhiImgui::frameFunc() const
     return d->frame;
 }
 
-void QRhiImgui::setInputEventSource(QObject *src, bool eatEvents)
+void QRhiImgui::setInputEventSource(QObject *src)
 {
     if (d->inputEventSource && d->inputEventFilter)
         d->inputEventSource->removeEventFilter(d->inputEventFilter);
@@ -327,9 +327,14 @@ void QRhiImgui::setInputEventSource(QObject *src, bool eatEvents)
         d->inputEventFilter = new QRhiImGuiInputEventFilter;
         d->inputInitialized = false;
     }
-    d->inputEventFilter->eatEvents = eatEvents;
 
     d->inputEventSource->installEventFilter(d->inputEventFilter);
+}
+
+void QRhiImgui::setEatInputEvents(bool enabled)
+{
+    if (d->inputEventFilter)
+        d->inputEventFilter->eatEvents = enabled;
 }
 
 void QRhiImgui::setDepthTest(bool enabled)

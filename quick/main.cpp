@@ -50,48 +50,79 @@
 
 #include <QGuiApplication>
 #include <QQuickView>
+#include "globalstate.h"
 #include "qrhiimgui.h"
+
+#include "imgui.h"
+#include "imnodes.h"
 
 struct ImGuiQuick
 {
+    ImGuiQuick();
     ~ImGuiQuick();
-    void init(QQuickWindow *window);
+
+    void setWindow(QQuickWindow *window);
+    void setVisible(bool b);
+
+    void init();
     void release();
     void prepare();
     void render();
+
     QRhiImgui d;
     QQuickWindow *w = nullptr;
     QRhi *rhi = nullptr;
     QRhiSwapChain *swapchain = nullptr;
+    bool visible = true;
 };
+
+ImGuiQuick::ImGuiQuick()
+{
+    d.setDepthTest(false);
+}
 
 ImGuiQuick::~ImGuiQuick()
 {
     release();
 }
 
-void ImGuiQuick::init(QQuickWindow *window)
+void ImGuiQuick::setWindow(QQuickWindow *window)
 {
-    QSGRendererInterface *rif = window->rendererInterface();
-    rhi = static_cast<QRhi *>(rif->getResource(window, QSGRendererInterface::RhiResource));
+    d.setInputEventSource(window);
+    d.setEatInputEvents(true);
+    w = window;
+}
+
+void ImGuiQuick::setVisible(bool b)
+{
+    if (visible == b)
+        return;
+
+    visible = b;
+    d.setEatInputEvents(visible);
+}
+
+void ImGuiQuick::init()
+{ // render thread
+    QSGRendererInterface *rif = w->rendererInterface();
+    rhi = static_cast<QRhi *>(rif->getResource(w, QSGRendererInterface::RhiResource));
     if (!rhi)
         qFatal("Failed to retrieve QRhi from QQuickWindow");
-    swapchain = static_cast<QRhiSwapChain *>(rif->getResource(window, QSGRendererInterface::RhiSwapchainResource));
+    swapchain = static_cast<QRhiSwapChain *>(rif->getResource(w, QSGRendererInterface::RhiSwapchainResource));
     if (!swapchain)
         qFatal("Failed to retrieve QRhiSwapChain from QQuickWindow");
 
     d.initialize(rhi);
-    w = window;
 }
 
 void ImGuiQuick::release()
-{
+{ // render thread
     d.releaseResources();
     w = nullptr;
 }
 
 void ImGuiQuick::prepare()
-{
+{ // render thread
     if (!w)
         return;
 
@@ -101,11 +132,75 @@ void ImGuiQuick::prepare()
 }
 
 void ImGuiQuick::render()
-{
-    if (!w)
+{ // render thread
+    if (!w || !visible)
         return;
 
     d.queueFrame(swapchain->currentFrameCommandBuffer());
+}
+
+static GlobalState globalState;
+
+void frame(ImGuiQuick *ig)
+{
+    ImGui::Begin("Control");
+    if (ImGui::Button("Close ImGui overlay"))
+        globalState.setVisible(false);
+    ImGui::End();
+
+    ImGui::SetNextWindowPos(ImVec2(100, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(400, 400), ImGuiCond_FirstUseEver);
+    ImGui::Begin("imnodes test");
+
+    imnodes::PushAttributeFlag(imnodes::AttributeFlags_EnableLinkDetachWithDragClick);
+    imnodes::BeginNodeEditor();
+
+    imnodes::BeginNode(1);
+    imnodes::BeginNodeTitleBar();
+    ImGui::TextUnformatted("Node 1");
+    imnodes::EndNodeTitleBar();
+    imnodes::BeginInputAttribute(2);
+    ImGui::Text("input");
+    imnodes::EndInputAttribute();
+    imnodes::BeginOutputAttribute(3);
+    ImGui::Indent(40);
+    ImGui::Text("output");
+    imnodes::EndOutputAttribute();
+    imnodes::EndNode();
+
+    imnodes::BeginNode(4);
+    imnodes::BeginNodeTitleBar();
+    ImGui::TextUnformatted("Node 2");
+    imnodes::EndNodeTitleBar();
+    imnodes::BeginInputAttribute(5);
+    ImGui::Text("input");
+    imnodes::EndInputAttribute();
+    imnodes::BeginOutputAttribute(6);
+    ImGui::Indent(40);
+    ImGui::Text("output");
+    imnodes::EndOutputAttribute();
+    imnodes::EndNode();
+
+    for (const auto &link : globalState.links)
+        imnodes::Link(link.id, link.fromAttrId, link.toAttrId);
+
+    imnodes::EndNodeEditor();
+    imnodes::PopAttributeFlag();
+
+    static int nextLinkId = 7;
+    int id, idFrom, idTo;
+    if (imnodes::IsLinkCreated(&idFrom, &idTo))
+        globalState.links.append({ nextLinkId++, idFrom, idTo });
+
+    if (imnodes::IsLinkDestroyed(&id)) {
+        globalState.links.erase(std::remove_if(globalState.links.begin(), globalState.links.end(),
+                                               [id](const GlobalState::Link &link) { return link.id == id; }),
+                                globalState.links.end());
+    }
+
+    ImGui::End();
+
+    ig->d.demoWindow();
 }
 
 int main(int argc, char *argv[])
@@ -114,19 +209,32 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
+    qmlRegisterSingletonInstance("imguidemo", 1, 0, "GlobalState", &globalState);
+
     // Either ig should outlive view, or should not rely on sceneGraphInvalidated. Chose the former here.
     ImGuiQuick ig;
     QQuickView view;
 
-    QObject::connect(&view, &QQuickWindow::sceneGraphInitialized, &view, [&ig, &view] { ig.init(&view); }, Qt::DirectConnection);
+    QObject::connect(&view, &QQuickWindow::sceneGraphInitialized, &view, [&ig] { ig.init(); }, Qt::DirectConnection);
     QObject::connect(&view, &QQuickWindow::sceneGraphInvalidated, &view, [&ig] { ig.release(); }, Qt::DirectConnection);
     QObject::connect(&view, &QQuickWindow::beforeRendering, &view, [&ig] { ig.prepare(); }, Qt::DirectConnection);
     QObject::connect(&view, &QQuickWindow::afterRenderPassRecording, &view, [&ig] { ig.render(); }, Qt::DirectConnection);
 
-    ig.d.setDepthTest(false);
-    ig.d.setInputEventSource(&view, true); // do not pass mouse and key input to Qt Quick
+    ig.setWindow(&view);
+    ig.d.setFrameFunc([&ig] { frame(&ig); });
 
-    ig.d.setFrameFunc([&ig] { ig.d.demoWindow(); });
+    ImGui::GetIO().IniFilename = nullptr; // don't save and restore layout
+
+    // start out as hidden
+    ig.setVisible(false);
+    globalState.setVisible(false);
+    QObject::connect(&globalState, &GlobalState::visibleChanged, &view, [&ig] {
+        ig.setVisible(globalState.isVisible());
+    });
+
+    imnodes::Initialize();
+    imnodes::SetNodeGridSpacePos(1, ImVec2(50.0f, 50.0f));
+    imnodes::SetNodeGridSpacePos(4, ImVec2(200.0f, 200.0f));
 
     view.setColor(Qt::black);
     view.setResizeMode(QQuickView::SizeRootObjectToView);
@@ -134,5 +242,8 @@ int main(int argc, char *argv[])
     view.setSource(QUrl("qrc:/main.qml"));
     view.show();
 
-    return app.exec();
+    int r = app.exec();
+
+    imnodes::Shutdown();
+    return r;
 }
