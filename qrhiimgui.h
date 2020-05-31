@@ -55,7 +55,7 @@ public:
     FrameFunc frameFunc() const;
     void demoWindow();
 
-    void setInputEventSource(QObject *src);
+    void setInputEventSource(QObject *src, bool eatEvents = false);
 
     void setDepthTest(bool enabled);
 

@@ -124,7 +124,8 @@ int main(int argc, char *argv[])
     QObject::connect(&view, &QQuickWindow::afterRenderPassRecording, &view, [&ig] { ig.render(); }, Qt::DirectConnection);
 
     ig.d.setDepthTest(false);
-    ig.d.setInputEventSource(&view);
+    ig.d.setInputEventSource(&view, true); // do not pass mouse and key input to Qt Quick
+
     ig.d.setFrameFunc([&ig] { ig.d.demoWindow(); });
 
     view.setColor(Qt::black);

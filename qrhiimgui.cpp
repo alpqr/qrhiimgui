@@ -316,7 +316,7 @@ QRhiImgui::FrameFunc QRhiImgui::frameFunc() const
     return d->frame;
 }
 
-void QRhiImgui::setInputEventSource(QObject *src)
+void QRhiImgui::setInputEventSource(QObject *src, bool eatEvents)
 {
     if (d->inputEventSource && d->inputEventFilter)
         d->inputEventSource->removeEventFilter(d->inputEventFilter);
@@ -327,6 +327,7 @@ void QRhiImgui::setInputEventSource(QObject *src)
         d->inputEventFilter = new QRhiImGuiInputEventFilter;
         d->inputInitialized = false;
     }
+    d->inputEventFilter->eatEvents = eatEvents;
 
     d->inputEventSource->installEventFilter(d->inputEventFilter);
 }
@@ -358,14 +359,14 @@ bool QRhiImGuiInputEventFilter::eventFilter(QObject *, QEvent *event)
         mouseButtonsDown = me->buttons();
         modifiers = me->modifiers();
     }
-        break;
+        return eatEvents;
 
     case QEvent::Wheel:
     {
         QWheelEvent *we = static_cast<QWheelEvent *>(event);
         mouseWheel += we->angleDelta().y() / 120.0f;
     }
-        break;
+        return eatEvents;
 
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
@@ -381,7 +382,7 @@ bool QRhiImGuiInputEventFilter::eventFilter(QObject *, QEvent *event)
         else if (k >= FIRSTSPECKEY && k <= LASTSPECKEY)
             keyDown[MAPSPECKEY(k)] = down;
     }
-        break;
+        return eatEvents;
 
     default:
         break;

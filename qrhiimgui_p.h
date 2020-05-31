@@ -61,6 +61,7 @@ public:
 
     bool eventFilter(QObject *watched, QEvent *event) override;
 
+    bool eatEvents;
     QPointF mousePos;
     Qt::MouseButtons mouseButtonsDown = Qt::NoButton;
     float mouseWheel = 0;
