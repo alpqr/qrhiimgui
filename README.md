@@ -29,3 +29,5 @@ It also uses [imnodes](https://github.com/Nelarius/imnodes) and
 dummy content, just for fun.
 
 ![Screenshot](screenshot.png)
+
+The obligatory rotating red rectangle and some text in QML, with the ImGui overlay opened on top.
