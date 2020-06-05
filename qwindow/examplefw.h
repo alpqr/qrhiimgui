@@ -334,9 +334,9 @@ void Window::resizeSwapChain()
     const QSize outputSize = m_sc->surfacePixelSize();
 
     m_ds->setPixelSize(outputSize);
-    m_ds->build(); // == m_ds->release(); m_ds->build();
+    m_ds->create(); // == m_ds->destroy(); m_ds->create();
 
-    m_hasSwapChain = m_sc->buildOrResize();
+    m_hasSwapChain = m_sc->createOrResize();
 
     m_frameCount = 0;
     m_timer.restart();
@@ -350,7 +350,7 @@ void Window::releaseSwapChain()
 {
     if (m_hasSwapChain) {
         m_hasSwapChain = false;
-        m_sc->release();
+        m_sc->destroy();
     }
 }
 

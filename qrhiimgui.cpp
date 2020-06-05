@@ -121,7 +121,7 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         d->ubuf = d->rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::UniformBuffer, 64 + 4);
         d->ubuf->setName(QByteArrayLiteral("imgui uniform buffer"));
         d->releasePool << d->ubuf;
-        if (!d->ubuf->build())
+        if (!d->ubuf->create())
             return false;
 
         float opacity = 1.0f;
@@ -141,7 +141,7 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
                                         QRhiSampler::Repeat, QRhiSampler::Repeat);
         d->sampler->setName(QByteArrayLiteral("imgui sampler"));
         d->releasePool << d->sampler;
-        if (!d->sampler->build())
+        if (!d->sampler->create())
             return false;
     }
 
@@ -150,7 +150,7 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         if (!t.tex) {
             t.tex = d->rhi->newTexture(QRhiTexture::RGBA8, t.image.size());
             t.tex->setName(QByteArrayLiteral("imgui texture ") + QByteArray::number(i));
-            if (!t.tex->build())
+            if (!t.tex->create())
                 return false;
             dstResourceUpdates->uploadTexture(t.tex, t.image);
         }
@@ -160,7 +160,7 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
                 QRhiShaderResourceBinding::uniformBuffer(0, QRhiShaderResourceBinding::VertexStage | QRhiShaderResourceBinding::FragmentStage, d->ubuf),
                 QRhiShaderResourceBinding::sampledTexture(1, QRhiShaderResourceBinding::FragmentStage, t.tex, d->sampler)
             });
-            if (!t.srb->build())
+            if (!t.srb->create())
                 return false;
         }
     }
@@ -205,7 +205,7 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         d->ps->setShaderResourceBindings(d->textures[0].srb);
         d->ps->setRenderPassDescriptor(rp);
 
-        if (!d->ps->build())
+        if (!d->ps->create())
             return false;
     }
 
@@ -232,12 +232,12 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         d->vbuf = d->rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::VertexBuffer, totalVbufSize);
         d->vbuf->setName(QByteArrayLiteral("imgui vertex buffer"));
         d->releasePool << d->vbuf;
-        if (!d->vbuf->build())
+        if (!d->vbuf->create())
             return false;
     } else {
         if (totalVbufSize > d->vbuf->size()) {
             d->vbuf->setSize(totalVbufSize);
-            if (!d->vbuf->build())
+            if (!d->vbuf->create())
                 return false;
         }
     }
@@ -245,12 +245,12 @@ bool QRhiImgui::prepareFrame(QRhiRenderTarget *rt, QRhiRenderPassDescriptor *rp,
         d->ibuf = d->rhi->newBuffer(QRhiBuffer::Dynamic, QRhiBuffer::IndexBuffer, totalIbufSize);
         d->ibuf->setName(QByteArrayLiteral("imgui index buffer"));
         d->releasePool << d->ibuf;
-        if (!d->ibuf->build())
+        if (!d->ibuf->create())
             return false;
     } else {
         if (totalIbufSize > d->ibuf->size()) {
             d->ibuf->setSize(totalIbufSize);
-            if (!d->ibuf->build())
+            if (!d->ibuf->create())
                 return false;
         }
     }
