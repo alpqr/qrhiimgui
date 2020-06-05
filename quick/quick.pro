@@ -4,6 +4,7 @@ QT += quick gui-private
 
 SOURCES = \
     main.cpp \
+    gui.cpp \
     ../qrhiimgui.cpp \
     ../imgui/imgui.cpp \
     ../imgui/imgui_draw.cpp \
@@ -14,6 +15,7 @@ SOURCES = \
 
 HEADERS = \
     globalstate.h \
+    gui.h \
     ../qrhiimgui.h \
     ../qrhiimgui_p.h
 
